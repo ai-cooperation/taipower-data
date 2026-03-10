@@ -1,70 +1,80 @@
 {
-  "updated_at": "2026-03-10T06:40:01.592317+00:00Z",
+  "updated_at": "2026-03-10T06:45:04.891269+00:00Z",
   "latest": {
-    "timestamp": "2026-03-10T14:20:00+08:00",
-    "solar_mw": 2021.1,
+    "timestamp": "2026-03-10T14:30:00+08:00",
+    "solar_mw": 1952.0,
     "solar_capacity_mw": 14887.9,
-    "wind_mw": 3470.5,
+    "wind_mw": 3481.6,
     "wind_capacity_mw": 2867.5,
-    "hydro_mw": 256.2,
+    "hydro_mw": 255.4,
     "hydro_capacity_mw": 2115.7,
-    "lng_mw": 11714.2,
+    "lng_mw": 11783.3,
     "lng_capacity_mw": 15918.1,
-    "ipp_lng_mw": 4351.0,
+    "ipp_lng_mw": 4350.3,
     "ipp_lng_capacity_mw": 5939.7,
-    "coal_mw": 5845.4,
+    "coal_mw": 5834.3,
     "coal_capacity_mw": 10050.0,
-    "ipp_coal_mw": 568.0,
+    "ipp_coal_mw": 569.0,
     "ipp_coal_capacity_mw": 1308.6,
-    "cogen_mw": 1187.6,
+    "cogen_mw": 1198.0,
     "cogen_capacity_mw": 631.4,
-    "oil_mw": 316.9,
+    "oil_mw": 316.6,
     "oil_capacity_mw": 1596.0,
-    "storage_mw": 174.0,
+    "storage_mw": 183.1,
     "storage_capacity_mw": 3425.5,
-    "other_renewable_mw": 41.0,
+    "other_renewable_mw": 41.8,
     "other_renewable_capacity_mw": 67.9,
-    "renewable_mw": 5788.8,
-    "total_mw": 29945.9,
-    "renewable_pct": 19.33,
-    "load_mw": 2996.5,
-    "util_rate_pct": 82.0,
+    "renewable_mw": 5730.8,
+    "total_mw": 29965.4,
+    "renewable_pct": 19.12,
+    "load_mw": 2993.5,
+    "util_rate_pct": 83.0,
     "fore_supply_mw": 3372.6,
     "fore_peak_load_mw": 3060.0,
     "fore_reserve_mw": 312.6,
     "fore_reserve_pct": 10.22,
     "reserve_indicator": "G"
   },
-  "record_count": 1,
+  "record_count": 2,
   "time_series": {
     "timestamps": [
-      "2026-03-10T14:20:00+08:00"
+      "2026-03-10T14:20:00+08:00",
+      "2026-03-10T14:30:00+08:00"
     ],
     "renewable_pct": [
-      19.33
+      19.33,
+      19.12
     ],
     "solar_mw": [
-      2021.1
+      2021.1,
+      1952.0
     ],
     "wind_mw": [
-      3470.5
+      3470.5,
+      3481.6
     ],
     "hydro_mw": [
-      256.2
+      256.2,
+      255.4
     ],
     "total_mw": [
-      29945.9
+      29945.9,
+      29965.4
     ],
     "renewable_mw": [
-      5788.8
+      5788.8,
+      5730.8
     ],
     "load_mw": [
-      2996.5
+      2996.5,
+      2993.5
     ],
     "util_rate_pct": [
-      82.0
+      82.0,
+      83.0
     ],
     "fore_reserve_pct": [
+      10.22,
       10.22
     ]
   },
@@ -72,13 +82,13 @@
     {
       "date": "2026-03-10",
       "solar_mw_max": 2021.1,
-      "wind_mw_max": 3470.5,
+      "wind_mw_max": 3481.6,
       "hydro_mw_max": 256.2,
       "renewable_mw_max": 5788.8,
-      "total_mw_max": 29945.9,
+      "total_mw_max": 29965.4,
       "renewable_pct_max": 19.33,
       "load_mw_max": 2996.5,
-      "count": 1
+      "count": 2
     }
   ]
 }
