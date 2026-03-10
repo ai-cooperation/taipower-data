@@ -57,7 +57,11 @@ def fetch_taipower() -> dict:
     resp = requests.get(
         TAIPOWER_URL,
         timeout=30,
-        headers={"User-Agent": "taipower-data-collector/1.0"},
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/plain, */*",
+            "Referer": "https://www.taipower.com.tw/",
+        },
     )
     resp.raise_for_status()
     raw = resp.json()
