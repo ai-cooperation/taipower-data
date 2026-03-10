@@ -14,6 +14,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+import time
+
 import requests
 
 HISTORY_PATH = Path("data/history.json")
@@ -52,18 +54,33 @@ def _parse_subtotal_mw(value: str) -> float | None:
         return None
 
 
+_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Referer": "https://www.taipower.com.tw/d006/loadGraph/loadGraph/genary.html",
+    "Connection": "keep-alive",
+}
+
+
+def _fetch_with_retry(url: str, max_retries: int = 3) -> requests.Response:
+    """Fetch URL with retry on 403/5xx errors."""
+    for attempt in range(max_retries):
+        resp = requests.get(url, timeout=30, headers=_HEADERS)
+        if resp.status_code == 200:
+            return resp
+        if resp.status_code in (403, 429, 500, 502, 503) and attempt < max_retries - 1:
+            wait = (attempt + 1) * 5
+            print(f"  HTTP {resp.status_code}, retry in {wait}s (attempt {attempt + 1}/{max_retries})")
+            time.sleep(wait)
+            continue
+        resp.raise_for_status()
+    return resp
+
+
 def fetch_taipower() -> dict:
     """Fetch and parse TaiPower generation data into a flat record."""
-    resp = requests.get(
-        TAIPOWER_URL,
-        timeout=30,
-        headers={
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-            "Accept": "application/json, text/plain, */*",
-            "Referer": "https://www.taipower.com.tw/",
-        },
-    )
-    resp.raise_for_status()
+    resp = _fetch_with_retry(TAIPOWER_URL)
     raw = resp.json()
 
     aa_data = raw.get("aaData", [])
@@ -197,8 +214,21 @@ def main():
           f"total: {record.get('total_mw')} MW")
 
     history = load_history()
-    history.append(record)
+
+    # Deduplicate by timestamp
+    existing_ts = {r.get("timestamp") for r in history}
+    if record["timestamp"] in existing_ts:
+        print(f"  skipping duplicate: {record['timestamp']}")
+    else:
+        history.append(record)
+
     history = prune_old(history)
+
+    # Remove duplicates (keep last occurrence)
+    seen: dict[str, int] = {}
+    for i, r in enumerate(history):
+        seen[r.get("timestamp", "")] = i
+    history = [history[i] for i in sorted(seen.values())]
 
     HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
     HISTORY_PATH.write_text(json.dumps(history, ensure_ascii=False))
