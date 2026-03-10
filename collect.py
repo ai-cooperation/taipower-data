@@ -1,6 +1,6 @@
-"""Collect TaiPower real-time generation data and append to rolling history.
+"""Collect TaiPower real-time generation + load data and append to rolling history.
 
-Runs every 5 minutes via GitHub Actions.
+Runs every 5 minutes via acmacmini2 cron.
 Keeps a rolling 8-day window in data/history.json.
 Writes data/dashboard.json for frontend consumption.
 """
@@ -23,6 +23,7 @@ DASHBOARD_PATH = Path("data/dashboard.json")
 MAX_AGE_HOURS = 8 * 24  # 8 days
 
 TAIPOWER_URL = "https://www.taipower.com.tw/d006/loadGraph/loadGraph/data/genary.json"
+LOADPARA_URL = "https://www.taipower.com.tw/d006/loadGraph/loadGraph/data/loadpara.json"
 
 # Map HTML anchor names to column prefixes and renewable flag
 _TYPE_MAP: dict[str, tuple[str, bool]] = {
@@ -134,6 +135,34 @@ def fetch_taipower() -> dict:
     record["total_mw"] = round(total_mw, 1)
     record["renewable_pct"] = round(renewable_mw / total_mw * 100, 2) if total_mw > 0 else 0.0
 
+    # Fetch load (consumption) data
+    try:
+        load_resp = _fetch_with_retry(LOADPARA_URL)
+        load_raw = load_resp.json()
+        load_records = load_raw.get("records", [])
+        if load_records:
+            # Record 0: current load + utilization rate
+            r0 = load_records[0] if len(load_records) > 0 else {}
+            if r0.get("curr_load"):
+                record["load_mw"] = float(r0["curr_load"])
+            if r0.get("curr_util_rate"):
+                record["util_rate_pct"] = float(r0["curr_util_rate"])
+
+            # Record 1: today's forecast peak
+            r1 = load_records[1] if len(load_records) > 1 else {}
+            if r1.get("fore_maxi_sply_capacity"):
+                record["fore_supply_mw"] = float(r1["fore_maxi_sply_capacity"])
+            if r1.get("fore_peak_dema_load"):
+                record["fore_peak_load_mw"] = float(r1["fore_peak_dema_load"])
+            if r1.get("fore_peak_resv_capacity"):
+                record["fore_reserve_mw"] = float(r1["fore_peak_resv_capacity"])
+            if r1.get("fore_peak_resv_rate"):
+                record["fore_reserve_pct"] = float(r1["fore_peak_resv_rate"])
+            if r1.get("fore_peak_resv_indicator"):
+                record["reserve_indicator"] = r1["fore_peak_resv_indicator"]
+    except Exception as e:
+        print(f"  warning: failed to fetch load data: {e}")
+
     return record
 
 
@@ -167,7 +196,10 @@ def build_dashboard(records: list[dict]) -> dict:
     sorted_recs = sorted(records, key=lambda r: r.get("timestamp", ""))
 
     # Time series
-    ts_fields = ["renewable_pct", "solar_mw", "wind_mw", "hydro_mw", "total_mw", "renewable_mw"]
+    ts_fields = [
+        "renewable_pct", "solar_mw", "wind_mw", "hydro_mw", "total_mw", "renewable_mw",
+        "load_mw", "util_rate_pct", "fore_reserve_pct",
+    ]
     time_series: dict[str, Any] = {
         "timestamps": [r["timestamp"] for r in sorted_recs],
     }
@@ -184,10 +216,11 @@ def build_dashboard(records: list[dict]) -> dict:
             daily[date] = {
                 "solar_mw_max": 0, "wind_mw_max": 0, "hydro_mw_max": 0,
                 "renewable_mw_max": 0, "total_mw_max": 0, "renewable_pct_max": 0,
+                "load_mw_max": 0,
                 "count": 0,
             }
         d = daily[date]
-        for key in ["solar_mw", "wind_mw", "hydro_mw", "renewable_mw", "total_mw", "renewable_pct"]:
+        for key in ["solar_mw", "wind_mw", "hydro_mw", "renewable_mw", "total_mw", "renewable_pct", "load_mw"]:
             d[f"{key}_max"] = max(d[f"{key}_max"], r.get(key) or 0)
         d["count"] += 1
 
@@ -211,7 +244,9 @@ def main():
     print(f"  renewable: {record.get('renewable_pct')}% | "
           f"solar: {record.get('solar_mw')} MW | "
           f"wind: {record.get('wind_mw')} MW | "
-          f"total: {record.get('total_mw')} MW")
+          f"total gen: {record.get('total_mw')} MW | "
+          f"load: {record.get('load_mw')} MW | "
+          f"reserve: {record.get('fore_reserve_pct')}%")
 
     history = load_history()
 
