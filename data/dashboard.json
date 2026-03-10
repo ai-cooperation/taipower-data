@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-10T04:23:47.678469+00:00Z",
+  "updated_at": "2026-03-10T04:27:33.193961+00:00Z",
   "latest": {
     "timestamp": "2026-03-10T12:10:00+00:00",
     "solar_mw": 2857.8,
@@ -28,27 +28,34 @@
     "total_mw": 30084.0,
     "renewable_pct": 21.97
   },
-  "record_count": 1,
+  "record_count": 2,
   "time_series": {
     "timestamps": [
+      "2026-03-10T12:10:00+00:00",
       "2026-03-10T12:10:00+00:00"
     ],
     "renewable_pct": [
+      21.97,
       21.97
     ],
     "solar_mw": [
+      2857.8,
       2857.8
     ],
     "wind_mw": [
+      3539.0,
       3539.0
     ],
     "hydro_mw": [
+      170.8,
       170.8
     ],
     "total_mw": [
+      30084.0,
       30084.0
     ],
     "renewable_mw": [
+      6609.8,
       6609.8
     ]
   },
@@ -61,7 +68,7 @@
       "renewable_mw_max": 6609.8,
       "total_mw_max": 30084.0,
       "renewable_pct_max": 21.97,
-      "count": 1
+      "count": 2
     }
   ]
 }
