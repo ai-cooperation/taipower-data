@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -69,9 +69,11 @@ def fetch_taipower() -> dict:
     # Parse timestamp
     ts_str = raw.get("", "")
     try:
-        ts = datetime.strptime(ts_str, "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+        tw_tz = timezone(timedelta(hours=8))
+        ts = datetime.strptime(ts_str, "%Y-%m-%d %H:%M").replace(tzinfo=tw_tz)
     except (ValueError, TypeError):
-        ts = datetime.now(timezone.utc)
+        tw_tz = timezone(timedelta(hours=8))
+        ts = datetime.now(tw_tz)
 
     # Find subtotal rows
     type_data: dict[str, dict[str, float | None]] = {}
