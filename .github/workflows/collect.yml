@@ -1,8 +1,9 @@
 name: Collect TaiPower Data
 
 on:
-  schedule:
-    - cron: "*/5 * * * *"
+  # Disabled: now collected by acmacmini2 cron
+  # schedule:
+  #   - cron: "*/5 * * * *"
   workflow_dispatch:
 
 permissions:
