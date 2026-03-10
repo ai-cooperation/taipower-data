@@ -1,8 +1,8 @@
 name: Collect Taiwan Environment Data
 
 on:
-  schedule:
-    - cron: "15,45 * * * *"  # Every 30 minutes
+  # schedule:
+    # - cron: "15,45 * * * *"  # Every 30 minutes
   workflow_dispatch:
 
 permissions:
